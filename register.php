@@ -1,154 +1,125 @@
 <?php
-require_once "config.php";
-$username = $password = $confirm_password = $phone = $email="";
-$username_err = $password_err = $confirm_password_err = $phone_err = $email_err = "";
-if ($_SERVER['REQUEST_METHOD'] == "POST") {
-    // check if user name is empty
-    if (empty(trim($_POST["username"]))) {
-        $username_err = "Username cannot be blank";
-    } else {
-        $sql = "SELECT id FROM users WHERE username = ?";
-        $stmt = mysqli_prepare($conn, $sql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "s", $param_username);
+include 'config.php';
 
-            // Set the value of param username
-            $param_username = trim($_POST['username']);
+    session_start();
+    if (isset($_SESSION['SESSION_EMAIL'])) {
+        header("Location: register.php");
+        die();
+    }
+    
+    // require 'vendor/autoload.php';
 
-            // Try to execute the statement
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_store_result($stmt);
-                if (mysqli_stmt_num_rows($stmt) == 1) {
-                    $username_err = "This username is already taken";
+    $msg = "";
+
+    if (isset($_POST['submit'])) {
+        $name = mysqli_real_escape_string($conn, $_POST['name']);
+        $email = mysqli_real_escape_string($conn, $_POST['email']);
+        $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+        $address = mysqli_real_escape_string($conn, $_POST['address']);
+        $password = mysqli_real_escape_string($conn, md5($_POST['password']));
+        $confirm_password = mysqli_real_escape_string($conn, md5($_POST['confirm-password']));
+    
+        if (mysqli_num_rows(mysqli_query($conn, "SELECT * FROM users WHERE email='{$email}'")) > 0) {
+            $msg = "<div class='alert alert-danger'>{$email} - This email address has been already exists.</div>";
+        } else {
+            if ($password === $confirm_password) {
+                $sql = "INSERT INTO users (name, email, phone, address, password) VALUES ('{$name}', '{$email}','{$phone}','{$address}', '{$password}')";
+                $result = mysqli_query($conn, $sql);
+
+                if ($result) {
+                    echo "<div style='display: none;'>";
+                    
+                    echo "</div>";
+                    $msg = "<div class='alert alert-info'>Signed up successfully.</div>";
+                    header("location: index.php");
                 } else {
-                    $username = trim($_POST['username']);
+                    $msg = "<div class='alert alert-danger'>Something wrong went.</div>";
+     
                 }
             } else {
-                echo "Something went wrong";
+                $msg = "<div class='alert alert-danger'>Password and Confirm Password do not match</div>";
             }
         }
     }
-    mysqli_stmt_close($stmt);
-
-    // Check for password
-    if (empty(trim($_POST['password']))) {
-        $password_err = "Password cannot be blank";
-    } elseif (strlen(trim($_POST['password'])) < 6) {
-        $password_err = "Password cannot be less than 6 characters";
-    } else {
-        $password = trim($_POST['password']);
-    }
-
-    // check for confirm password
-    if (trim($_POST['password']) != trim($_POST['confirm_password'])) {
-        $password_err = "Password should match";
-    }
-
-    // If there were no errors insert into database
-    if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
-        $sql = "INSERT INTO users (username, password, phone, email) VALUES (?, ?, ?, ?)";
-        $stmt = mysqli_prepare($conn, $sql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "ssss", $param_username, $param_password, $param_phone, $param_email);
-
-            // Set these parameters
-            $param_username = $username;
-            $param_password = password_hash($password, PASSWORD_DEFAULT);
-            $param_phone = $phone;
-            $param_email=$email;
-
-            // try to execute the query
-
-            if (mysqli_stmt_execute($stmt)) {
-                header("location: login.php");
-            } else {
-                echo "Something went wrong. Cannot redirect";
-            }
-        }
-        mysqli_stmt_close($stmt);
-    }
-    mysqli_close($conn);
-}
-
 ?>
 
-<!doctype html>
-<html lang="en">
-
+<!DOCTYPE html>
+<html>
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
+    <title>E-Mobile Plaza/Sign Up</title>
+    <!-- Meta tag Keywords -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="keywords"
+        content="Login Form" />
+    <!-- //Meta tag Keywords -->
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="login-style.css" type="text/css">
-    <title>E-Mobile Bazaar</title>
+    <link href="//fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!--/Style-CSS -->
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="all" />
+    <!--//Style-CSS -->
+
+    <script src="https://kit.fontawesome.com/af562a2a63.js" crossorigin="anonymous"></script>
+
 </head>
 
-<body style="background-image: linear-gradient(black, red,black);">
-    <nav class="navbar">
-        <div class="container-fluid">
-            <a class="navbar-brand" id="main-title">Welcome to E-Mobile Bazaar</a>
-            <div class="btn-class">
-                <a class="navbar-brand nav-btn flex-col" href="login.php"><span class="btn">Login </span></a>
+<body>
+
+    <!-- form section start -->
+    <section class="w3l-mockup-form">
+        <div class="container">
+        <h3 class="title-heading">Welcome to E-Mobile Plaza</h3>
+
+            <!-- /form -->
+            <div class="workinghny-form-grid">
+                <div class="main-mockup">
+                    <div class="alert-close">
+                        <span class="fa fa-close"></span>
+                    </div>
+                    <div class="w3l_form align-self">
+                        <div class="left_grid_info">
+                            <img src="images/image2.svg" alt="">
+                        </div>
+                    </div>
+                    <div class="content-wthree">
+                        <h2>Sign Up</h2>
+                        <?php echo $msg; ?>
+                        <form action="" method="post">
+                            <input type="text" class="name" name="name" placeholder="Enter Your Name" value="<?php if (isset($_POST['submit'])) { echo $name; } ?>" required>
+                            <input type="email" class="email" name="email" placeholder="Enter Your Email" value="<?php if (isset($_POST['submit'])) { echo $email; } ?>" required>
+                            <input type="phone" class="phone" name="phone" placeholder="Enter Your phone" value="<?php if (isset($_POST['submit'])) { echo $phone; } ?>" required>
+                            <input type="address" class="address" name="address" placeholder="Enter Your address" value="<?php if (isset($_POST['submit'])) { echo $address; } ?>" required>
+                            <input type="password" class="password" name="password" placeholder="Enter Your Password" required>
+                            <input type="password" class="confirm-password" name="confirm-password" placeholder="Enter Your Confirm Password" required>
+                            <button name="submit" class="btn" type="submit">Register</button>
+                        </form>
+                        <div class="social-icons">
+                            <p>Already registered or Have an account! <a href="index.php">Login</a>.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <!-- //form -->
         </div>
-    </nav>
-    <div class="container mt-5">
-        <h3 class="text-center">Sign Up</h3>
-        <hr>
-        <form action="" method="POST">
-            <div class="row g-3">
-                <div class="col main-class">
-                    <label for="inputEmail4" class="form-label text-white labels">Username</label>
-                    <input type="text" class="form-control" id="inputEmail4" name="username" placeholder="Enter your username">
-                </div>
-                <div class="col-md-6">
-                    <label for="inputPassword4" class="form-label text-white labels">Password</label>
-                    <input type="password" class="form-control" id="inputPassword4" name="password" placeholder="Enter your password">
-                </div>
-                <div class="col-md-12">
-                    <label for="inputPassword" class="form-label text-white pt-2 labels">Confirm Password</label>
-                    <input type="password" class="form-control" id="inputPassword" name="confirm_password" placeholder="Re-enter your password">
-                </div>
+    </section>
+    <!-- //form section start -->
 
-            </div>
-            <div class="col mt-2">
-                <label for="phone" class="form-label pt-2 text-white labels">Phone No</label>
-                <input type="phone" class="form-control" id="phone" name="phone" placeholder="Enter your contact">
-            </div>
+    <script src="js/jquery.min.js"></script>
+    <script>
+        $(document).ready(function (c) {
+            $('.alert-close').on('click', function (c) {
+                $('.main-mockup').fadeOut('slow', function (c) {
+                    $('.main-mockup').remove();
+                });
+            });
+        });
+        let btn=document.getElementsByClassName('btn');
+        btn.onclick = function () {
+        location.href = "index.php";
+    };
+    </script>
 
-            <div class="col mt-2">
-                <label class="form-label pt-2 text-white labels">Email</label>
-                <input class="form-control" type="email" id="email" placeholder="Enter your email" name="email">
-            </div> 
-
-
-            <div class="col mt-2">
-                <label class="form-label pt-2 text-white labels">Address</label>
-                <input class="form-control" type="address" id="address" placeholder="Enter your address">
-            </div>
-
-            <div class="col-12 mt-4">
-                <button type="submit" class="btn btn-primary btn-sign">Sign in</button>
-            </div>
-    </div>
-    <div class="special-log-in">
-        <a href="login.php">Already a user, log in</a>
-    </div>
-    </form>
-    </div>
-    <!-- Optional JavaScript; choose one of the two! -->
-
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    -->
 </body>
 
 </html>

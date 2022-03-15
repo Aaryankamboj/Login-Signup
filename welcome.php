@@ -1,40 +1,37 @@
-<?php
-session_start();
-if (!(isset($_SESSION['loggedin']) || $_SESSION(['loggedin'] != true))) {
-    header("location: welcome.php");
-}
-?>
-<!doctype html>
-<html lang="en">
+<link rel="stylesheet" href="css/style.css" type="text/css" media="all" />
+<style>
+    .log-head{
+        text-align: center;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+    
+</style>
+<!-- form section start -->
+<section class="w3l-mockup-form">
+    <div class="container">
+        <h3 class="title-heading">E-Mobile Plaza</h3>
+        <div class="log-head">
 
-<head>
+            <?php
+            session_start();
+            if (!isset($_SESSION['SESSION_EMAIL'])) {
+                header("Location: ./index.php");
+                die();
+            }
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+            include 'config.php';
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="login-style.css">
+            $query = mysqli_query($conn, "SELECT * FROM users WHERE email='{$_SESSION['SESSION_EMAIL']}'");
+            if (mysqli_num_rows($query) > 0) {
+                $row = mysqli_fetch_assoc($query);
 
-    <title>E-Mobile Bazaar</title>
-</head>
+                echo "Do you really want to log out " . $row['name'] . " ?<br> <a href='logout.php'>Logout</a>";
+            }
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark navi">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#" id="main-title">Welcome to E-Mobile Bazaar</a>
-            <div class="btn-class">
-                <a class="navbar-brand nav-btn" href="logout.php"> <span class="btn">Logout </span></a>
-            </div>
-
+            ?>
         </div>
-    </nav>
-    <div class="container mt-5">
-        <h3 class="text-center"><?php echo "Welcome " . $_SESSION['username']; ?> You can now use this website</h3>
-        <hr>
+
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
-</body>
-
-</html>
+</section>
