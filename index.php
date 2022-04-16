@@ -1,45 +1,37 @@
+
 <?php
-session_start();
-if (isset($_SESSION['SESSION_EMAIL'])) {
-    header("Location: index.php");    
-    die();
-}
-// session_start();
+    session_start();
+  
 
-include 'config.php';
-$msg = "";
-
-// if (isset($_GET['verification'])) {
-//     if (mysqli_num_rows(mysqli_query($conn, "SELECT * FROM users WHERE code='{$_GET['verification']}'")) > 0) {
-//         $query = mysqli_query($conn, "UPDATE users SET code='' WHERE code='{$_GET['verification']}'");
-//         if ($query) {
-//             $msg = "<div class='alert alert-success'>Account verification has been successfully completed.</div>";
-//         }
-//     } else {
-//         header("Location: index.php");
-//     }
-// }
-
-if (isset($_POST['submit'])) {
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = mysqli_real_escape_string($conn, md5($_POST['password']));
-
-    $sql = "SELECT * FROM users WHERE email='{$email}' AND password='{$password}'";
-    $result = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($result) === 1) {
-        $row = mysqli_fetch_assoc($result);
-
-        if (empty($row['code'])) {
-            $_SESSION['SESSION_EMAIL'] = $email;
-            header("Location: ../index.php");
-        }
-      
-    } else {
-        $msg = "<div class='alert alert-danger'>Email or password do not match.</div>";
+    if (isset($_SESSION['SESSION_EMAIL'])) {
+        header("Location: ../index.php");
+        die();
     }
-}
-?>
+
+    include 'config.php';
+    $msg = "";
+
+    if (isset($_POST['submit'])) {
+        $email = mysqli_real_escape_string($conn, $_POST['email']);
+        $password = mysqli_real_escape_string($conn, md5($_POST['password']));
+
+        $sql = "SELECT * FROM users WHERE email='{$email}' AND password='{$password}'";
+        $result = mysqli_query($conn, $sql);
+
+        if (mysqli_num_rows($result) === 1) {
+            $row = mysqli_fetch_assoc($result);
+
+            if (empty($row['code'])) {
+                $_SESSION['SESSION_EMAIL'] = $email;
+                header("Location: ../index.php");
+            } 
+        } else {
+            $msg = "<div class='alert alert-danger'>Email or password do not match.</div>";
+        }
+    }
+    ?>
+  
+
 
 <!DOCTYPE html>
 <html>

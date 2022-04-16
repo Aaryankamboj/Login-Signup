@@ -1,13 +1,12 @@
 <?php
-include 'config.php';
 
-    session_start();
-    if (isset($_SESSION['SESSION_EMAIL'])) {
-        header("Location: register.php");
-        die();
-    }
-    
-    // require 'vendor/autoload.php';
+session_start();
+if (isset($_SESSION['SESSION_EMAIL'])) {
+    header("Location: ./index.php");
+    die();
+}
+
+include 'config.php';
 
     $msg = "";
 
